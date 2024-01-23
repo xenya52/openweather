@@ -1,6 +1,7 @@
 use reqwest;
+use dotenv::dotenv;
 use serde::Deserialize;
-use std::error::Error;
+use std::{env, error::Error};
 
 #[derive(Deserialize)]
 struct WeatherResponse {
@@ -16,7 +17,8 @@ struct Main {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let api_key = "YOUR_API_KEY"; // Replace with your actual API key
+    dotenv().ok();
+    let api_key = env::var("OPENWEATHER_KEY").expect("Key not found"); // Replace with your actual API key
     let city = "Regensburg";
     let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric", city, api_key);
 
