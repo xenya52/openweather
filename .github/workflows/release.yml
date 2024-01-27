@@ -5,7 +5,11 @@ on:
 jobs:
   release:
     name: release ${{ matrix.target }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latestm
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
     strategy:
       fail-fast: false
       matrix:
