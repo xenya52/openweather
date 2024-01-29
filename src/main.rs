@@ -3,6 +3,7 @@ use dotenv::dotenv;
 use std::{env, error::Error};
 use reqwest;
 use tokio::{self, sync::watch};
+use crossterm::{terminal::{self, SetSize},};
 
 fn ascii_art_cloud() {
     println!("
@@ -123,6 +124,7 @@ fn print_weather_output(body: String) -> Result<(), serde_json::Error> {
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
     dotenv().ok();
+    crossterm::terminal::SetSize(15,15);
     // The URL of the API you want to call
     let api_key = env::var("OPENWEATHER_KEY").expect("Key not found"); // Replace with your actual API key
     let city = "Regensburg";
