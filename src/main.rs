@@ -4,6 +4,7 @@ use std::{env, error::Error};
 use reqwest;
 use tokio::{self, sync::watch};
 use crossterm::{terminal::{self, SetSize},};
+use std::backtrace::Backtrace;
 
 fn ascii_art_cloud() {
     println!("
