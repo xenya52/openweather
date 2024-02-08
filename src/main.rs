@@ -1,6 +1,6 @@
 use serde_json::Value;
 use dotenv::dotenv;
-use std::{env, error::Error};
+use std::{env, error::Error, ptr::null};
 use reqwest;
 use tokio::{self, sync::watch};
 use crossterm::{terminal::{self, SetSize},};
@@ -123,15 +123,24 @@ fn print_weather_output(body: String) -> Result<(), serde_json::Error> {
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
-    let args: Vec<String> = env::args().collect();
     dotenv().ok();
-    // The URL of the API you want to call
-    let api_key = &args[1]; // Replace with your actual API key
+    let args: Vec<String> = env::args().collect();
+    let api_key = if args.len() > 1 {
+        args[1].clone()
+    } else {
+        match env::var("OPENWEATHER_KEY") {
+            Ok(key) => key,
+            Err(_) => {
+                eprintln!("OPENWEATHER_KEY not found in environment variables");
+                return Ok(());
+            }
+        }
+    };
+
     let city = "Regensburg";
     let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric", city, api_key);
 
-    // Send a GET request and await the response
-    let response = reqwest::get(url).await?;
+    let response = reqwest::get(&url).await?;
 
     // Check if the request was successful
     if response.status().is_success() {
