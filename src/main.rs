@@ -101,7 +101,30 @@ fn ascii_art_sun() {
     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒");
 }
-
+fn ascii_art_mist() {
+    println!("
+                      ▒▒
+                       ▒▒▒▒          ▒▒▒▒▒▒
+            ░░▒▒░░    ░░░░▒▒░░      ░░▒▒▒▒▒▒
+        ░░░░  ▒▒▒▒░░▒▒▒▒▒▒▒▒▓▓▒▒▒▒▒▒▓▓▓▓▓▓░░░░
+        ░░    ░░░░░░░░      ░░▒▒▒▒▓▓▒▒▒▒▒▒░░░░░░
+        ░░      ░░░░░░░░░░░░░░░░░░▒▒▒▒▒▒▒▒░░░░░░
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░░░░░░░░░░░░░░░░░░░░░░░░▒▒▒▒░░░░░░░░░░░░░░░░░░░░
+░░░░░░░░░░░░░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░
+░░░░░░░░░░░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒
+░░░░░░░░░░░░▒▒▒▒░░░░░░▒▒░░░░▒▒▓▓▒▒▒▒▓▓▓▓▒▒▒▒▒▒▒▒
+░░░░░░░░░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒░░░░░░░░▒▒▒▒▒▒▒▒▒▒▓▓
+░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░▒▒▒▒▒▒▓▓▓▓▓▓
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓▒▒██▓▓██▒▒▓▓▓▓▓▓▓▓▓▓▓▓
+▒▒▒▒▒▒▒▒▒▒▒▒▓▓▒▒▒▒▒▒▒▒▒▒▒▒▓▓▒▒▓▓▓▓▓▓▒▒▒▒▒▒▒▒▓▓▓▓
+▒▒▒▒▒▒▒▒▒▒▓▓▓▓▒▒▒▒▒▒▒▒▓▓▓▓▓▓▓▓▓▓▓▓██▓▓▓▓▓▓▓▓▓▓▓▓")
+}
+fn ascii_art_clear() {
+    println!("
+    >(.)__ <(.)__ =(.)__
+     (___/  (___/  (___/ ");
+}
 fn print_weather_output(body: String) -> Result<(), serde_json::Error> {
     // Parse the string of data into serde_json::Value.
     let v: Value = serde_json::from_str(&body)?;
@@ -115,6 +138,8 @@ fn print_weather_output(body: String) -> Result<(), serde_json::Error> {
         "Clouds"=>ascii_art_cloud(),
         "Rain"=>ascii_art_rain(),
         "Sun"=>ascii_art_sun(),
+        "Mist"=>ascii_art_mist(),
+        "Clear"=>ascii_art_clear(),
         _=>print!("Error: no ascii art found")
     }
     println!("Weather in [{}] is [{}]. Temperature is [{:.1}°C]", name, weather, temperature);
@@ -137,7 +162,17 @@ async fn main() -> Result<(), reqwest::Error> {
         }
     };
 
-    let city = "Regensburg";
+    let city = if args.len() > 2 {
+        args[2].clone()
+    } else {
+        match env::var("CITY") {
+            Ok(c) => c,
+            Err(_) => {
+                eprintln!("OPENWEATHER_KEY not found in environment variables");
+                return Ok(());
+            }
+        }
+    };
     let url = format!("http://api.openweathermap.org/data/2.5/weather?q={}&appid={}&units=metric", city, api_key);
 
     let response = reqwest::get(&url).await?;
